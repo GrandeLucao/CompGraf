@@ -1,1 +1,0 @@
-os 2 arquivos devem estar na pasta do executavel do VS. Adicionalmente, mudar o working directory nas config do projeto para "TargetPath"
