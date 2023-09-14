@@ -45,8 +45,8 @@ int main()
     };
 
     unsigned int indices[] = {
-        0, 1, 3, 
-        1, 2, 3  
+        0, 1, 3, // 1st Triangle
+        1, 2, 3  // 2nd Triangle
     };
 
     unsigned int VBO, VAO, EBO;
@@ -59,13 +59,16 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,6*sizeof(float), (void*)0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,6*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8*sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(6*sizeof(float)));
+    glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(float), (void*)(6*sizeof(float)));
     glEnableVertexAttribArray(2);
 
     //Textures
@@ -81,6 +84,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
     int width,height,nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+
     unsigned char *data=stbi_load("container.jpg", &width,&height,&nrChannels,0);
     if(data)
     {
@@ -116,7 +121,10 @@ int main()
     stbi_image_free(data);
 
     myShader.use();
-    glUniform1i(glGetUniformLocation(myShader.ID, "texture1"),0);
+    //glUniform1i(glGetUniformLocation(myShader.ID, "texture1"),0);
+    //glUniform1i(glGetUniformLocation(myShader.ID, "texture2"), 1);
+    
+    myShader.setInt("texture1",0);
     myShader.setInt("texture2",1);
 
     //Polygon Mode = If able, show only outlines of the figures draw. Almost a test/debug feature of OpenGl
@@ -131,13 +139,13 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        myShader.use();
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D,texture2);
 
+        myShader.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,0);
 
